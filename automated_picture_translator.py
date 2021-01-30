@@ -16,8 +16,9 @@ import pyautogui
 from typing import NamedTuple
 
 import pytesseract
+from PIL.Image import Image
 
-#TODO to be removed after adding Tesseract to PATH
+# TODO to be removed after adding Tesseract to PATH
 pytesseract.pytesseract.tesseract_cmd = r'D:\Tesseract-OCR\tesseract.exe'
 
 
@@ -30,7 +31,7 @@ class ScreenPoint(NamedTuple):
     x: int
     y: int
 
-    def __sub__(self, other: ScreenPoint):
+    def __sub__(self, other: ScreenPoint) -> ScreenshotSize:
         if not isinstance(other, ScreenPoint):
             raise ValueError("Incorrect other type: {}", other.__class__)
         return ScreenshotSize(
@@ -39,28 +40,28 @@ class ScreenPoint(NamedTuple):
         )
 
 
-#TODO In general - move to class
+# TODO In general - move to class
 
 def get_corners_of_region_to_translate():
     # TODO select screenshot points somehow (UI?)
     return ScreenPoint(x=748, y=914), ScreenPoint(x=1603, y=1139)
 
 
-def capture_picture(top_left_corner: ScreenPoint, bottom_right_corner: ScreenPoint):
+def capture_picture(top_left_corner: ScreenPoint, bottom_right_corner: ScreenPoint) -> Image:
     size = bottom_right_corner - top_left_corner
     print(f"Capturing picture from {top_left_corner} of size {size}")
     time.sleep(2)
     return pyautogui.screenshot(region=(*top_left_corner, *size))
 
 
-def process_picture_ocr(picture):
+def process_picture_ocr(picture: Image) -> str:
     custom_config = r'-l eng --psm 6'
     print(f"Picture to OCR: {picture}")
     raw_text = pytesseract.image_to_string(picture, config=custom_config)
     return ' '.join(raw_text.strip().split('\n'))
 
 
-def translate_text(text_to_translate, source_language, target_language):
+def translate_text(text_to_translate: str, source_language: str, target_language: str) -> str:
     # TODO use Google Translate API for this one
     print(f"Translating {text_to_translate} from {source_language} to {target_language}")
     translated_text = text_to_translate
@@ -72,12 +73,12 @@ def cache_translation(translated_text):
     pass
 
 
-def display_translation(translated_text):
+def display_translation(translated_text: str) -> None:
     # TODO this may be used by some window to be periodically updated
     print(f"Translation: {translated_text}")
 
 
-def main():
+def main() -> None:
     top_left, bottom_right = get_corners_of_region_to_translate()
     picture = capture_picture(top_left, bottom_right)
     text_to_translate = process_picture_ocr(picture)
