@@ -8,18 +8,41 @@
 
 from __future__ import annotations
 
+import re
 import time
 
-import cv2
 import pyautogui
 
-from typing import NamedTuple
+from typing import NamedTuple, List
 
 import pytesseract
 from PIL.Image import Image
 
+from googletrans import Translator
+
+from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
 # TODO to be removed after adding Tesseract to PATH
 pytesseract.pytesseract.tesseract_cmd = r'D:\Tesseract-OCR\tesseract.exe'
+
+translator = Translator()
+engine = create_engine("sqlite:///translation.db", echo=False)
+session = sessionmaker(bind=engine)()
+punctuation_regex = re.compile("[.,!:;]")
+
+
+# TODO In general - move everything to class and modulize what is needed
+
+class Translations(Base):
+    __tablename__ = 'translations'
+    translation_id = Column(Integer, primary_key=True)
+    source_language = Column(String, nullable=False)
+    target_language = Column(String, nullable=False)
+    text_to_translate = Column(String, nullable=False)
+    translation = Column(String, nullable=False)
 
 
 class ScreenshotSize(NamedTuple):
@@ -40,11 +63,34 @@ class ScreenPoint(NamedTuple):
         )
 
 
-# TODO In general - move to class
+def cache_translation(text_to_translate, source_language, target_language, translation):
+    translation = Translations(source_language=source_language, target_language=target_language,
+                               text_to_translate=text_to_translate, translation=translation)
+    session.add(translation)
+    session.commit()
+
+
+def translate_or_get_from_cache(text_to_translate, source_language, target_language):
+    entry: Translations = session.query(Translations).filter(
+        Translations.source_language.is_(source_language),
+        Translations.text_to_translate.is_(text_to_translate),
+        Translations.target_language.is_(target_language)
+    ).first()
+    if not entry:
+        try:
+            translator_response = translator.translate(text_to_translate, src=source_language, dest=target_language)
+            cache_translation(text_to_translate, source_language, target_language, translator_response.text)
+            return translator_response.text
+        except TypeError as err:
+            print(f"Error processing text: {text_to_translate}")
+            print(f"Error: {err}")
+            return ""
+    return entry.translation
+
 
 def get_corners_of_region_to_translate():
     # TODO select screenshot points somehow (UI?)
-    return ScreenPoint(x=748, y=914), ScreenPoint(x=1603, y=1139)
+    return ScreenPoint(x=743, y=890), ScreenPoint(x=1603, y=1139)
 
 
 def capture_picture(top_left_corner: ScreenPoint, bottom_right_corner: ScreenPoint) -> Image:
@@ -64,13 +110,18 @@ def process_picture_ocr(picture: Image) -> str:
 def translate_text(text_to_translate: str, source_language: str, target_language: str) -> str:
     # TODO use Google Translate API for this one
     print(f"Translating {text_to_translate} from {source_language} to {target_language}")
-    translated_text = text_to_translate
+    translated_text = translate_or_get_from_cache(text_to_translate, source_language, target_language)
     return translated_text
 
 
-def cache_translation(translated_text):
-    # TODO cache translations in SQLLite database to reduce lookup time
-    pass
+def translate_all_words(text_to_translate: str, source_language: str, target_language: str) -> List[str]:
+    words = text_to_translate.split(' ')
+    translations = []
+    for word in words:
+        text = translate_or_get_from_cache(punctuation_regex.sub("", word), source_language=source_language,
+                                           target_language=target_language)
+        translations.append(text)
+    return translations
 
 
 def display_translation(translated_text: str) -> None:
@@ -80,10 +131,17 @@ def display_translation(translated_text: str) -> None:
 
 def main() -> None:
     top_left, bottom_right = get_corners_of_region_to_translate()
-    picture = capture_picture(top_left, bottom_right)
-    text_to_translate = process_picture_ocr(picture)
-    translated_text = translate_text(text_to_translate, 'en', 'pl')
-    display_translation(translated_text)
+    Base.metadata.create_all(engine)
+    session.commit()
+    while True:
+        time.sleep(2)
+        picture = capture_picture(top_left, bottom_right)
+        text_to_translate = process_picture_ocr(picture)
+        if text_to_translate:
+            translated_text = translate_text(text_to_translate, 'en', 'pl')
+            print(translate_all_words(text_to_translate, 'en', 'pl'))
+            display_translation(translated_text)
+
 
 
 if __name__ == '__main__':
