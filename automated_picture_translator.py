@@ -1,12 +1,11 @@
-# DUMMY PROJECT
-# Create script that:
-# 1. Captures continously text from screen (best case - only when it changes or on demand)
-# 2. Does OCR
-# 3. Runs text and its fragments through google translate
-# 3a. Bonus points - translates only the more obscure words
-# 4. Uses some kind of GUI for this
+# Points to do:
+# Translate only the more obscure words (how can you "measure" obscurity of word?)
+# Uses some kind of GUI for this
 
 from __future__ import annotations
+
+import cv2
+import numpy as np
 
 import re
 import time
@@ -16,12 +15,12 @@ import pyautogui
 from typing import NamedTuple, List
 
 import pytesseract
-from PIL.Image import Image
+from PIL import Image
 
 from googletrans import Translator
 
 from sqlalchemy import create_engine, Column, Integer, String
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
@@ -35,6 +34,14 @@ punctuation_regex = re.compile("[.,!:;]")
 
 
 # TODO In general - move everything to class and modulize what is needed
+
+def pil_to_cv2(image):
+    return cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+
+
+def white_to_black_only(image):
+    arr = pil_to_cv2(image)
+    return Image.fromarray(np.where(arr == 255, 0, 255).astype('uint8'))
 
 class Translations(Base):
     __tablename__ = 'translations'
@@ -104,7 +111,7 @@ def process_picture_ocr(picture: Image) -> str:
     custom_config = r'-l eng --psm 6'
     print(f"Picture to OCR: {picture}")
     raw_text = pytesseract.image_to_string(picture, config=custom_config)
-    return ' '.join(raw_text.strip().split('\n'))
+    return raw_text.strip().replace('\n', ' ')
 
 
 def translate_text(text_to_translate: str, source_language: str, target_language: str) -> str:
@@ -136,12 +143,14 @@ def main() -> None:
     while True:
         time.sleep(2)
         picture = capture_picture(top_left, bottom_right)
-        text_to_translate = process_picture_ocr(picture)
-        if text_to_translate:
-            translated_text = translate_text(text_to_translate, 'en', 'pl')
-            print(translate_all_words(text_to_translate, 'en', 'pl'))
-            display_translation(translated_text)
-
+        text_to_translate = process_picture_ocr(white_to_black_only(picture))
+        if not text_to_translate:
+            text_to_translate = process_picture_ocr(picture)
+        if not text_to_translate:
+            continue
+        translated_text = translate_text(text_to_translate, 'en', 'pl')
+        print(translate_all_words(text_to_translate, 'en', 'pl'))
+        display_translation(translated_text)
 
 
 if __name__ == '__main__':
