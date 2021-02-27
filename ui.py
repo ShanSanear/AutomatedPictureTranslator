@@ -6,9 +6,9 @@ from functools import partial
 from typing import NamedTuple
 
 import pyautogui
-from PyQt5.QtCore import QThreadPool, QRect, QTimer
-from PyQt5.QtGui import QCursor, QPixmap
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QPushButton, QTableView
+from PyQt5.QtCore import QThreadPool, QRect, QTimer, QObject, pyqtSignal
+from PyQt5.QtGui import QCursor, QPixmap, QTextOption
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QTableView, QTextEdit
 
 from models import TableModel
 from picture_processing import process_picture_ocr, white_to_black_only
@@ -34,6 +34,10 @@ class ScreenPoint(NamedTuple):
         )
 
 
+class Communicate(QObject):
+    translate_signal = pyqtSignal()
+
+
 class SingleWordTranslations(QWidget):
     def __init__(self):
         super().__init__()
@@ -47,7 +51,7 @@ class SingleWordTranslations(QWidget):
         self.layout().addWidget(self.table)
 
 
-class MyApp(QWidget):
+class AutomatedPictureTranslator(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Main translations")
@@ -61,24 +65,27 @@ class MyApp(QWidget):
         layout = QVBoxLayout()
         self.setLayout(layout)
 
-        self.label_field = QLabel("This will be translated text")
+        self.translation = QTextEdit("This will be translated text")
+        self.translation.setReadOnly(True)
         self.set_top_left = QPushButton("TOP LEFT")
         self.set_bottom_right = QPushButton("BOTTOM RIGHT")
-        self.top_left = ScreenPoint(0, 0)
-        self.bottom_right = ScreenPoint(0, 0)
+        self.top_left = ScreenPoint(501, 1012)
+        self.bottom_right = ScreenPoint(1656, 1265)
         self.set_top_left.clicked.connect(partial(self.get_mouse_position, 'top_left'))
         self.set_bottom_right.clicked.connect(partial(self.get_mouse_position, 'bottom_right'))
         self.current_screenshot = QPixmap()
-        self.timer = QTimer()
-        self.timer.timeout.connect(self._translation)
-        self.label_field.setWordWrap(True)
+        self.translation.setWordWrapMode(QTextOption.WordWrap)
         self.single_word_translation = SingleWordTranslations()
         self.single_word_translation.resize(400, 400)
-        layout.addWidget(self.label_field)
+        layout.addWidget(self.translation)
         layout.addWidget(self.set_top_left)
         layout.addWidget(self.set_bottom_right)
         layout.addWidget(self.show_single_translations)
         layout.addWidget(self.toggle_translation_button)
+        self.communicate = Communicate()
+        self.communicate.translate_signal.connect(self.do_translation)
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.communicate.translate_signal.emit)
 
     def toggle_translation(self):
         if self.timer.isActive():
@@ -121,25 +128,35 @@ class MyApp(QWidget):
         if not text_to_translate:
             text_to_translate = process_picture_ocr(pic)
         if not text_to_translate:
-            self.label_field.setText("Error processing translation")
+            self.translation.setPlainText("Error processing translation")
+            return
+        if len(text_to_translate) > 500:
+            self.translation.setPlainText("Text to be translated too long")
             return
         translated_text = translate_text(text_to_translate, 'en', 'pl')
-        self.label_field.setText(translated_text)
+        self.translation.setPlainText(translated_text)
         single_words = get_single_words_to_translate(text_to_translate)
         translated_single_words = translate_all_words(single_words, 'en', 'pl')
         self.single_word_translation.model.set_data(list([org, trans] for org, trans in zip(
             single_words, translated_single_words
         )))
 
-    def _translation(self):
-        worker = Worker(self.do_translation)
-        self.thread_pool.start(worker)
+    def fire_timer(self):
+        # worker = Worker(self.do_translation)
+        # self.thread_pool.start(worker)
+        # self.do_translation()
+        # worker = Worker(self.do_translation)
+        # self.timer.stop()
+        # self.thread_pool.start(worker)
+        # self.timer.start(3000)
+        self.communicate.translate_signal.emit()
+        # self.translation.moveCursor(QTextCursor.End)
 
 
 app = QApplication(sys.argv)
 
 app.setStyleSheet("""
-QLabel {
+QTextEdit {
 font-size: 25px;
 font-style: bold;
 border: 2px solid red;
@@ -149,6 +166,6 @@ font-size: 40px;
 font-style: bold;
 }
 """)
-window = MyApp()
+window = AutomatedPictureTranslator()
 window.show()
 app.exec()

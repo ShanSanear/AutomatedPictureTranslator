@@ -4,11 +4,13 @@ from typing import List
 from googletrans import Translator
 from sqlalchemy import Column, Integer, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 
 Base = declarative_base()
 engine = create_engine("sqlite:///translation.db", echo=False)
-session = sessionmaker(bind=engine)()
+session_factory = sessionmaker(bind=engine)
+Session = scoped_session(session_factory)
+session = Session()
 
 ERROR_TRANSLATING = "error"
 
