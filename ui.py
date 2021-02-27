@@ -1,16 +1,14 @@
 from __future__ import annotations
 
-import random
+import sys
 import time
 from functools import partial
 from typing import NamedTuple, List
 
 import pyautogui
-import pytesseract
-from PyQt5.QtCore import QThread, QRunnable, pyqtSlot, QThreadPool, QPoint, QRect, QTimer, QAbstractTableModel, Qt
-from PyQt5.QtGui import QCursor, QScreen, QBitmap, QPixmap
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QPushButton, QTableView, QHeaderView
-import sys
+from PyQt5.QtCore import QRunnable, pyqtSlot, QThreadPool, QRect, QTimer, QAbstractTableModel, Qt
+from PyQt5.QtGui import QCursor, QPixmap
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QPushButton, QTableView
 
 from picture_processing import process_picture_ocr, white_to_black_only
 from translation_processing import translate_text, get_single_words_to_translate, translate_all_words
