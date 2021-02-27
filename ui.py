@@ -84,15 +84,15 @@ class AutomatedPictureTranslator(QWidget):
         layout.addWidget(self.toggle_translation_button)
         self.communicate = Communicate()
         self.communicate.translate_signal.connect(self.do_translation)
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.communicate.translate_signal.emit)
+        self.translate_timer = QTimer()
+        self.translate_timer.timeout.connect(self.communicate.translate_signal.emit)
 
     def toggle_translation(self):
-        if self.timer.isActive():
-            self.timer.stop()
+        if self.translate_timer.isActive():
+            self.translate_timer.stop()
             self.toggle_translation_button.setText("TURN ON TRANSLATION")
         else:
-            self.timer.start(3000)
+            self.translate_timer.start(3000)
             self.toggle_translation_button.setText("TURN OFF TRANSLATION")
 
     def show_single_word_translations(self):
