@@ -3,6 +3,9 @@ import numpy as np
 import pytesseract
 from PIL import Image
 
+# TODO to be removed after adding Tesseract to PATH
+pytesseract.pytesseract.tesseract_cmd = r'D:\Tesseract-OCR\tesseract.exe'
+
 
 def process_picture_ocr(picture: Image) -> str:
     custom_config = r'-l eng --psm 6'
