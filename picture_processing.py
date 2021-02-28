@@ -12,10 +12,15 @@ pytesseract.pytesseract.tesseract_cmd = r'D:\Tesseract-OCR\tesseract.exe'
 
 
 class PictureProcessing:
-    def __init__(self, tesseract_config: str = '-l eng --psm 6'):
-        self.tesseract_config = tesseract_config
+    def __init__(self, tesseract_lang='en', page_segmentation_mode='6'):
+        self._from_Language = tesseract_lang
+        self._page_segmentation_mode = page_segmentation_mode
         self.communicate = Communicate()
-        self.communicate.update_tesseract_config.connect(self.update_tesseract_config)
+        self.communicate.update_tesseract_psm.connect(self.update_tesseract_config)
+
+    @property
+    def tesseract_config(self):
+        return f'-l {self._from_Language} --psm {self._page_segmentation_mode}'
 
     def process_picture_ocr(self, picture: Image) -> str:
         print(f"Picture to OCR: {picture}")

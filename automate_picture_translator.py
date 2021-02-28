@@ -159,8 +159,7 @@ class APT(QMainWindow):
     def show_tesseract_options(self):
         self.pytesseract_popup_settings.show()
         print("Showing tesseract options...")
-        new_tesseract_options = '-l eng --psm 6'
-        self.communicate.update_tesseract_config.emit(new_tesseract_options)
+        self.communicate.update_tesseract_psm.emit('6')
         print("Set tesseract config...")
 
 
