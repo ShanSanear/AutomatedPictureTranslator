@@ -16,9 +16,8 @@ class PictureProcessing:
 
     @classmethod
     def process_picture_ocr(cls, picture: Image) -> str:
-        custom_config = r'-l eng --psm 6'
         print(f"Picture to OCR: {picture}")
-        raw_text = pytesseract.image_to_string(picture, config=custom_config)
+        raw_text = pytesseract.image_to_string(picture, config=cls.tesseract_config)
         return raw_text.strip().replace('\n', ' ')
 
     @classmethod
