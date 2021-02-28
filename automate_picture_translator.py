@@ -5,15 +5,36 @@ import time
 from functools import partial
 from pathlib import Path
 
-from PyQt5.QtCore import QThreadPool, QRect, QTimer
+from PyQt5.QtCore import QThreadPool, QRect, QTimer, Qt
 from PyQt5.QtGui import QCursor, QPixmap, QTextOption
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QTableView, QTextEdit, QMainWindow, \
-    QMenuBar, QMenu, QAction
+    QMenuBar, QMenu, QAction, QComboBox, QHBoxLayout, QLabel
 
 from models import TableModel
 from picture_processing import PictureProcessing
 from translation_processing import translate_text, get_single_words_to_translate, translate_all_words
 from utils import Worker, Communicate, ScreenPoint, MenuSignals
+
+
+class ComboBoxWithLabel:
+    def __init__(self, label_text, elements):
+        self.combo_box = QComboBox()
+        self.layout_ = QHBoxLayout()
+        self.label = QLabel(label_text)
+        self.label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.combo_box.addItems(elements)
+        self.layout_.addWidget(self.label)
+        self.layout_.addWidget(self.combo_box, stretch=1)
+
+
+class PyTesseractPopupSettings(QWidget):
+    def __init__(self):
+        super().__init__()
+        layout = QVBoxLayout()
+        self.setLayout(layout)
+        layout.setSpacing(100)
+        self.cb = ComboBoxWithLabel("Page segmentation mode", (str(i) for i in range(14)))
+        layout.addLayout(self.cb.layout_)
 
 
 class SingleWordTranslations(QWidget):
@@ -133,8 +154,10 @@ class APT(QMainWindow):
         settings_menu.addAction(self.tesseract_options)
         self.setMenuBar(self.menu_bar)
         self.communicate = Communicate()
+        self.pytesseract_popup_settings = PyTesseractPopupSettings()
 
     def show_tesseract_options(self):
+        self.pytesseract_popup_settings.show()
         print("Showing tesseract options...")
         new_tesseract_options = '-l eng --psm 6'
         self.communicate.update_tesseract_config.emit(new_tesseract_options)
