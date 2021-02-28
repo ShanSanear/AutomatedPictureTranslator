@@ -86,6 +86,7 @@ class AutomatedPictureTranslator(QWidget):
         self.communicate.translate_signal.connect(self.do_translation)
         self.translate_timer = QTimer()
         self.translate_timer.timeout.connect(self.communicate.translate_signal.emit)
+        self.left_mouse_button_clicked = False
 
     def toggle_translation(self):
         if self.translate_timer.isActive():
@@ -140,17 +141,6 @@ class AutomatedPictureTranslator(QWidget):
         self.single_word_translation.model.set_data(list([org, trans] for org, trans in zip(
             single_words, translated_single_words
         )))
-
-    def fire_timer(self):
-        # worker = Worker(self.do_translation)
-        # self.thread_pool.start(worker)
-        # self.do_translation()
-        # worker = Worker(self.do_translation)
-        # self.timer.stop()
-        # self.thread_pool.start(worker)
-        # self.timer.start(3000)
-        self.communicate.translate_signal.emit()
-        # self.translation.moveCursor(QTextCursor.End)
 
 
 app = QApplication(sys.argv)
