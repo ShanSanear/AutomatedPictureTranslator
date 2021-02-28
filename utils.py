@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import NamedTuple
 
 from PyQt5.QtCore import QRunnable, pyqtSlot, QObject, pyqtSignal
@@ -18,6 +20,11 @@ class Worker(QRunnable):
 
 class Communicate(QObject):
     translate_signal = pyqtSignal()
+    update_tesseract_config = pyqtSignal()
+
+
+class MenuSignals(QObject):
+    tesseract_config_signal = pyqtSignal()
 
 
 class ScreenshotSize(NamedTuple):
