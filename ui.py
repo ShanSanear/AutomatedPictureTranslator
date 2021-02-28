@@ -5,13 +5,12 @@ import time
 from functools import partial
 from typing import NamedTuple
 
-import pyautogui
 from PyQt5.QtCore import QThreadPool, QRect, QTimer, QObject, pyqtSignal
 from PyQt5.QtGui import QCursor, QPixmap, QTextOption
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QTableView, QTextEdit
 
 from models import TableModel
-from picture_processing import process_picture_ocr, white_to_black_only
+from picture_processing import PictureProcessing
 from translation_processing import translate_text, get_single_words_to_translate, translate_all_words
 from utils import Worker
 
@@ -107,10 +106,6 @@ class AutomatedPictureTranslator(QWidget):
     def rectangle_to_translate(self):
         return QRect(self.top_left, self.bottom_right)
 
-    def capture_picture(self):
-        size = self.bottom_right - self.top_left
-        return pyautogui.screenshot(region=(*self.top_left, *size))
-
     def _get_mouse_position(self, timeout, variable_to_set):
         for i in range(timeout):
             time.sleep(1)
@@ -124,10 +119,10 @@ class AutomatedPictureTranslator(QWidget):
     def do_translation(self):
         if self.top_left == (0, 0) or self.bottom_right == (0, 0):
             return
-        pic = self.capture_picture()
-        text_to_translate = process_picture_ocr(white_to_black_only(pic))
+        pic = PictureProcessing.capture_picture(self.bottom_right, self.top_left)
+        text_to_translate = PictureProcessing.process_picture_white_to_black(pic)
         if not text_to_translate:
-            text_to_translate = process_picture_ocr(pic)
+            text_to_translate = PictureProcessing.process_picture_ocr(pic)
         if not text_to_translate:
             self.translation.setPlainText("Error processing translation")
             return
