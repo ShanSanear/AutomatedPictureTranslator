@@ -8,7 +8,7 @@ from typing import NamedTuple
 
 from PyQt5.QtCore import QThreadPool, QRect, QTimer, QObject, pyqtSignal
 from PyQt5.QtGui import QCursor, QPixmap, QTextOption
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QTableView, QTextEdit
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QTableView, QTextEdit, QMainWindow
 
 from models import TableModel
 from picture_processing import PictureProcessing
@@ -52,6 +52,7 @@ class SingleWordTranslations(QWidget):
 
 
 class AutomatedPictureTranslator(QWidget):
+    # noinspection PyUnresolvedReferences
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Main translations")
@@ -139,9 +140,15 @@ class AutomatedPictureTranslator(QWidget):
         )))
 
 
+class APT(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setCentralWidget(AutomatedPictureTranslator())
+
+
 app = QApplication(sys.argv)
 
 app.setStyleSheet(Path('app_style.qss').read_text(encoding='utf-8'))
-window = AutomatedPictureTranslator()
+window = APT()
 window.show()
 app.exec()
