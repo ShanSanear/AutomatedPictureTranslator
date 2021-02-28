@@ -23,6 +23,7 @@ class PictureProcessing:
         return f'-l {self._from_Language} --psm {self._page_segmentation_mode}'
 
     def _set_page_segmentation_mode(self, val):
+        print(f"Set page segmentation mode: {val}")
         self._page_segmentation_mode = val
 
     def process_picture_ocr(self, picture: Image) -> str:
