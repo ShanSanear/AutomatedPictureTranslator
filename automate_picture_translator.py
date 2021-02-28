@@ -4,38 +4,16 @@ import sys
 import time
 from functools import partial
 from pathlib import Path
-from typing import NamedTuple
 
-from PyQt5.QtCore import QThreadPool, QRect, QTimer, QObject, pyqtSignal
+from PyQt5.QtCore import QThreadPool, QRect, QTimer
 from PyQt5.QtGui import QCursor, QPixmap, QTextOption
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QTableView, QTextEdit, QMainWindow
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QTableView, QTextEdit, QMainWindow, \
+    QMenuBar, QMenu, QAction
 
 from models import TableModel
 from picture_processing import PictureProcessing
 from translation_processing import translate_text, get_single_words_to_translate, translate_all_words
-from utils import Worker
-
-
-class ScreenshotSize(NamedTuple):
-    width: int
-    height: int
-
-
-class ScreenPoint(NamedTuple):
-    x: int
-    y: int
-
-    def __sub__(self, other: ScreenPoint) -> ScreenshotSize:
-        if not isinstance(other, ScreenPoint):
-            raise ValueError("Incorrect other type: {}", other.__class__)
-        return ScreenshotSize(
-            width=self.x - other.x,
-            height=self.y - other.y
-        )
-
-
-class Communicate(QObject):
-    translate_signal = pyqtSignal()
+from utils import Worker, Communicate, ScreenPoint
 
 
 class SingleWordTranslations(QWidget):
