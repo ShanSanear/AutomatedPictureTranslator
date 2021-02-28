@@ -66,7 +66,7 @@ class AutomatedPictureTranslator(QWidget):
     def show_single_word_translations(self):
         self.single_word_translation.show()
 
-    def get_mouse_position(self, variable_name_to_set):
+    def get_mouse_position(self, variable_name_to_set: str):
         worker = Worker(self._get_mouse_position, 2, variable_name_to_set)
         self.thread_pool.start(worker)
 
@@ -74,7 +74,7 @@ class AutomatedPictureTranslator(QWidget):
     def rectangle_to_translate(self):
         return QRect(self.top_left, self.bottom_right)
 
-    def _get_mouse_position(self, timeout, variable_to_set):
+    def _get_mouse_position(self, timeout: int, variable_to_set: str):
         for i in range(timeout):
             time.sleep(1)
             print(i)

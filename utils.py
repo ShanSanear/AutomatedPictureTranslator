@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import NamedTuple
+from typing import NamedTuple, Iterable, Callable
 
 from PyQt5.QtCore import QRunnable, pyqtSlot, QObject, pyqtSignal, Qt
 from PyQt5.QtWidgets import QComboBox, QHBoxLayout, QLabel
@@ -19,7 +19,7 @@ class Singleton(type(QObject), type):
 
 class Worker(QRunnable):
 
-    def __init__(self, fn, *args, **kwargs):
+    def __init__(self, fn: Callable, *args, **kwargs):
         super(Worker, self).__init__()
         self.fn = fn
         self.args = args
@@ -59,7 +59,7 @@ class ScreenPoint(NamedTuple):
 
 
 class ComboBoxWithLabel:
-    def __init__(self, label_text, elements):
+    def __init__(self, label_text: str, elements: Iterable[str]):
         self.combo_box = QComboBox()
         self.layout_ = QHBoxLayout()
         self.label = QLabel(label_text)
