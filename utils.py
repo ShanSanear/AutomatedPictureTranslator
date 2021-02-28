@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import NamedTuple
 
-from PyQt5.QtCore import QRunnable, pyqtSlot, QObject, pyqtSignal
+from PyQt5.QtCore import QRunnable, pyqtSlot, QObject, pyqtSignal, Qt
+from PyQt5.QtWidgets import QComboBox, QHBoxLayout, QLabel
 
 
 class Singleton(type(QObject), type):
@@ -55,3 +56,14 @@ class ScreenPoint(NamedTuple):
             width=self.x - other.x,
             height=self.y - other.y
         )
+
+
+class ComboBoxWithLabel:
+    def __init__(self, label_text, elements):
+        self.combo_box = QComboBox()
+        self.layout_ = QHBoxLayout()
+        self.label = QLabel(label_text)
+        self.label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.combo_box.addItems(elements)
+        self.layout_.addWidget(self.label)
+        self.layout_.addWidget(self.combo_box, stretch=1)
