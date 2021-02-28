@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QTa
 from models import TableModel
 from picture_processing import PictureProcessing
 from translation_processing import translate_text, get_single_words_to_translate, translate_all_words
-from utils import Worker, Communicate, ScreenPoint
+from utils import Worker, Communicate, ScreenPoint, MenuSignals
 
 
 class SingleWordTranslations(QWidget):
@@ -126,8 +126,14 @@ class APT(QMainWindow):
         settings_menu = QMenu("&Settings", self)
         self.menu_bar.addMenu(settings_menu)
         self.tesseract_options = QAction("Tesseract...", self)
+        self.menu_signals = MenuSignals()
+        self.tesseract_options.triggered.connect(self.menu_signals.tesseract_config_signal)
+        self.menu_signals.tesseract_config_signal.connect(self.show_tesseract_options)
         settings_menu.addAction(self.tesseract_options)
         self.setMenuBar(self.menu_bar)
+
+    def show_tesseract_options(self):
+        print("Showing tesseract options...")
 
 
 app = QApplication(sys.argv)
