@@ -16,11 +16,14 @@ class PictureProcessing:
         self._from_Language = tesseract_lang
         self._page_segmentation_mode = page_segmentation_mode
         self.communicate = Communicate()
-        self.communicate.update_tesseract_psm.connect(self.update_tesseract_config)
+        self.communicate.update_tesseract_psm.connect(self._set_page_segmentation_mode)
 
     @property
     def tesseract_config(self):
         return f'-l {self._from_Language} --psm {self._page_segmentation_mode}'
+
+    def _set_page_segmentation_mode(self, val):
+        self._page_segmentation_mode = val
 
     def process_picture_ocr(self, picture: Image) -> str:
         print(f"Picture to OCR: {picture}")
@@ -43,7 +46,3 @@ class PictureProcessing:
     def process_picture_white_to_black(self, image):
         img = self.white_to_black_only(image)
         return self.process_picture_ocr(img)
-
-    def update_tesseract_config(self, val):
-        print(f"Updating tesseract config with value: {val}")
-        self.tesseract_config = val
