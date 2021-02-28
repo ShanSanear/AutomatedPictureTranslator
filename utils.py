@@ -5,6 +5,17 @@ from typing import NamedTuple
 from PyQt5.QtCore import QRunnable, pyqtSlot, QObject, pyqtSignal
 
 
+class Singleton(type(QObject), type):
+    def __init__(cls, name, bases, dict):
+        super().__init__(name, bases, dict)
+        cls._instance = None
+
+    def __call__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super().__call__(*args, **kwargs)
+        return cls._instance
+
+
 class Worker(QRunnable):
 
     def __init__(self, fn, *args, **kwargs):
@@ -18,12 +29,12 @@ class Worker(QRunnable):
         self.fn(*self.args, **self.kwargs)
 
 
-class Communicate(QObject):
+class Communicate(QObject, metaclass=Singleton):
     translate_signal = pyqtSignal()
     update_tesseract_config = pyqtSignal(str)
 
 
-class MenuSignals(QObject):
+class MenuSignals(QObject, metaclass=Singleton):
     tesseract_config_signal = pyqtSignal()
 
 
