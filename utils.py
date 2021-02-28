@@ -20,7 +20,7 @@ class Worker(QRunnable):
 
 class Communicate(QObject):
     translate_signal = pyqtSignal()
-    update_tesseract_config = pyqtSignal()
+    update_tesseract_config = pyqtSignal(str)
 
 
 class MenuSignals(QObject):

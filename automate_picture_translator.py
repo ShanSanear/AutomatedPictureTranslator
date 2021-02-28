@@ -66,6 +66,7 @@ class AutomatedPictureTranslator(QWidget):
         self.translate_timer = QTimer()
         self.translate_timer.timeout.connect(self.communicate.translate_signal.emit)
         self.left_mouse_button_clicked = False
+        self.picture_processing = PictureProcessing()
 
     def toggle_translation(self):
         if self.translate_timer.isActive():
@@ -99,10 +100,10 @@ class AutomatedPictureTranslator(QWidget):
     def do_translation(self):
         if self.top_left == (0, 0) or self.bottom_right == (0, 0):
             return
-        pic = PictureProcessing.capture_picture(self.bottom_right, self.top_left)
-        text_to_translate = PictureProcessing.process_picture_white_to_black(pic)
+        pic = self.picture_processing.capture_picture(self.bottom_right, self.top_left)
+        text_to_translate = self.picture_processing.process_picture_white_to_black(pic)
         if not text_to_translate:
-            text_to_translate = PictureProcessing.process_picture_ocr(pic)
+            text_to_translate = self.picture_processing.process_picture_ocr(pic)
         if not text_to_translate:
             self.translation.setPlainText("Error processing translation")
             return
@@ -131,9 +132,13 @@ class APT(QMainWindow):
         self.menu_signals.tesseract_config_signal.connect(self.show_tesseract_options)
         settings_menu.addAction(self.tesseract_options)
         self.setMenuBar(self.menu_bar)
+        self.communicate = Communicate()
 
     def show_tesseract_options(self):
         print("Showing tesseract options...")
+        new_tesseract_options = '-l eng --psm 6'
+        self.communicate.update_tesseract_config.emit(new_tesseract_options)
+        print("Set tesseract config...")
 
 
 app = QApplication(sys.argv)
