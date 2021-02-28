@@ -1,0 +1,10 @@
+QTextEdit {
+    font-size: 25px;
+    font-style: bold;
+    border: 2px solid red;
+}
+
+QTableView {
+    font-size: 40px;
+    font-style: bold;
+}

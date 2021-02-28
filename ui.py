@@ -3,6 +3,7 @@ from __future__ import annotations
 import sys
 import time
 from functools import partial
+from pathlib import Path
 from typing import NamedTuple
 
 from PyQt5.QtCore import QThreadPool, QRect, QTimer, QObject, pyqtSignal
@@ -140,17 +141,7 @@ class AutomatedPictureTranslator(QWidget):
 
 app = QApplication(sys.argv)
 
-app.setStyleSheet("""
-QTextEdit {
-font-size: 25px;
-font-style: bold;
-border: 2px solid red;
-}
-QTableView {
-font-size: 40px;
-font-style: bold;
-}
-""")
+app.setStyleSheet(Path('app_style.qss').read_text(encoding='utf-8'))
 window = AutomatedPictureTranslator()
 window.show()
 app.exec()
