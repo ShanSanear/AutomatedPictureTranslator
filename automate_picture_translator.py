@@ -122,6 +122,12 @@ class APT(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setCentralWidget(AutomatedPictureTranslator())
+        self.menu_bar = QMenuBar(self)
+        settings_menu = QMenu("&Settings", self)
+        self.menu_bar.addMenu(settings_menu)
+        self.tesseract_options = QAction("Tesseract...", self)
+        settings_menu.addAction(self.tesseract_options)
+        self.setMenuBar(self.menu_bar)
 
 
 app = QApplication(sys.argv)

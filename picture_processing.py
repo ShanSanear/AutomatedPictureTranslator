@@ -11,8 +11,8 @@ pytesseract.pytesseract.tesseract_cmd = r'D:\Tesseract-OCR\tesseract.exe'
 class PictureProcessing:
     tesseract_config = '-l eng --psm 6'
 
-    def __init__(self):
-        pass
+    def __init__(self, tesseract_config: str = '-l eng --psm 6'):
+        self.tesseract_config = tesseract_config
 
     @classmethod
     def process_picture_ocr(cls, picture: Image) -> str:
