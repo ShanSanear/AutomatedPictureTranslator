@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTableView
 
 from models import TableModel
-from utils import ComboBoxWithLabel
+from utils import ComboBoxWithLabel, Communicate
 
 
 class PyTesseractPopupSettings(QWidget):
@@ -10,8 +10,12 @@ class PyTesseractPopupSettings(QWidget):
         layout = QVBoxLayout()
         self.setLayout(layout)
         layout.setSpacing(100)
+        self.communicate = Communicate()
         self.cb = ComboBoxWithLabel("Page segmentation mode", (str(i) for i in range(14)))
         layout.addLayout(self.cb.layout_)
+        self.cb.combo_box.currentTextChanged.connect(
+            self.communicate.update_tesseract_psm.emit
+        )
 
 
 class SingleWordTranslations(QWidget):
