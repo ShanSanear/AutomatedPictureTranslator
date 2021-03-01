@@ -4,7 +4,7 @@ from models import TableModel
 from utils import ComboBoxWithLabel, Communicate
 
 
-class PyTesseractPopupSettings(QWidget):
+class SettingsPopup(QWidget):
     def __init__(self):
         super().__init__()
         layout = QVBoxLayout()

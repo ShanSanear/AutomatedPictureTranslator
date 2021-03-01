@@ -37,7 +37,7 @@ class Communicate(QObject, metaclass=Singleton):
 
 
 class MenuSignals(QObject, metaclass=Singleton):
-    tesseract_config_signal = pyqtSignal()
+    show_config_signal = pyqtSignal()
 
 
 class ScreenshotSize(NamedTuple):

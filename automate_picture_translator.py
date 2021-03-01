@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QTe
     QMenuBar, QMenu, QAction
 
 from picture_processing import PictureProcessing
-from popups import PyTesseractPopupSettings, SingleWordTranslations
+from popups import SettingsPopup, SingleWordTranslations
 from translation_processing import translate_text, get_single_words_to_translate, translate_all_words
 from utils import Worker, Communicate, ScreenPoint, MenuSignals
 
@@ -111,19 +111,19 @@ class APT(QMainWindow):
         super().__init__()
         self.setCentralWidget(AutomatedPictureTranslator())
         self.menu_bar = QMenuBar(self)
-        settings_menu = QMenu("&Settings", self)
-        self.menu_bar.addMenu(settings_menu)
-        self.tesseract_options = QAction("Tesseract...", self)
+        file_menu = QMenu("&File", self)
+        self.menu_bar.addMenu(file_menu)
+        self.settings_menu = QAction("Settings...", self)
+        self.settings_menu.triggered.connect(self.menu_signals.show_config_signal)
         self.menu_signals = MenuSignals()
-        self.tesseract_options.triggered.connect(self.menu_signals.tesseract_config_signal)
-        self.menu_signals.tesseract_config_signal.connect(self.show_tesseract_options)
-        settings_menu.addAction(self.tesseract_options)
+        self.menu_signals.show_config_signal.connect(self.show_settings_popup)
+        file_menu.addAction(self.settings_menu)
         self.setMenuBar(self.menu_bar)
         self.communicate = Communicate()
-        self.pytesseract_popup_settings = PyTesseractPopupSettings()
+        self.settings_popup = SettingsPopup()
 
-    def show_tesseract_options(self):
-        self.pytesseract_popup_settings.show()
+    def show_settings_popup(self):
+        self.settings_popup.show()
         print("Showing tesseract options...")
         self.communicate.update_tesseract_psm.emit('6')
         print("Set tesseract config...")
