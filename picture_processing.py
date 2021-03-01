@@ -12,7 +12,7 @@ pytesseract.pytesseract.tesseract_cmd = r'D:\Tesseract-OCR\tesseract.exe'
 
 
 class PictureProcessing:
-    def __init__(self, tesseract_lang: str = 'en', page_segmentation_mode: str = '6'):
+    def __init__(self, tesseract_lang: str = 'eng', page_segmentation_mode: str = '6'):
         self._from_Language = tesseract_lang
         self._page_segmentation_mode = page_segmentation_mode
         self.communicate = Communicate()
