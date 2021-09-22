@@ -12,27 +12,27 @@ pytesseract.pytesseract.tesseract_cmd = r'D:\Tesseract-OCR\tesseract.exe'
 
 
 class PictureProcessing:
-    def __init__(self, tesseract_lang: str = 'eng', page_segmentation_mode: str = '6'):
-        self._from_Language = tesseract_lang
-        self._page_segmentation_mode = page_segmentation_mode
+    _from_language = 'eng'
+    _page_segmentation_mode = '6'
+    tesseract_config = f'-l {_from_language} --psm {_page_segmentation_mode}'
+
+    def __init__(self):
         self.communicate = Communicate()
         self.communicate.update_tesseract_psm.connect(self._set_page_segmentation_mode)
-
-    @property
-    def tesseract_config(self):
-        return f'-l {self._from_Language} --psm {self._page_segmentation_mode}'
 
     def _set_page_segmentation_mode(self, val):
         print(f"Set page segmentation mode: {val}")
         self._page_segmentation_mode = val
 
-    def process_picture_ocr(self, picture: Image) -> str:
+    @classmethod
+    def process_picture_ocr(cls, picture: Image) -> str:
         print(f"Picture to OCR: {picture}")
-        raw_text = pytesseract.image_to_string(picture, config=self.tesseract_config)
+        raw_text = pytesseract.image_to_string(picture, config=cls.tesseract_config)
         return raw_text.strip().replace('\n', ' ')
 
-    def white_to_black_only(self, image):
-        arr = self.pil_to_cv2(image)
+    @classmethod
+    def white_to_black_only(cls, image):
+        arr = cls.pil_to_cv2(image)
         return Image.fromarray(np.where(arr == 255, 0, 255).astype('uint8'))
 
     @classmethod
@@ -44,6 +44,13 @@ class PictureProcessing:
         size = bottom_right - top_left
         return pyautogui.screenshot(region=(*top_left, *size))
 
-    def process_picture_white_to_black(self, image):
-        img = self.white_to_black_only(image)
-        return self.process_picture_ocr(img)
+    @classmethod
+    def capture_picture_in_black_and_white(cls, bottom_right, top_left):
+        size = bottom_right - top_left
+        ss = pyautogui.screenshot(region=(*top_left, *size))
+        return cls.process_picture_white_to_black(ss)
+
+    @classmethod
+    def process_picture_white_to_black(cls, image):
+        img = cls.white_to_black_only(image)
+        return cls.process_picture_ocr(img)
