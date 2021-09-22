@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from typing import NamedTuple, Iterable, Callable
+from typing import Iterable, Callable
 
 from PyQt5.QtCore import QRunnable, pyqtSlot, QObject, pyqtSignal, Qt
 from PyQt5.QtWidgets import QComboBox, QHBoxLayout, QLabel
+from pydantic import BaseModel
 
 
 class Singleton(type(QObject), type):
@@ -40,12 +41,12 @@ class MenuSignals(QObject, metaclass=Singleton):
     show_config_signal = pyqtSignal()
 
 
-class ScreenshotSize(NamedTuple):
+class ScreenshotSize(BaseModel):
     width: int
     height: int
 
 
-class ScreenPoint(NamedTuple):
+class ScreenPoint(BaseModel):
     x: int
     y: int
 
@@ -56,6 +57,11 @@ class ScreenPoint(NamedTuple):
             width=self.x - other.x,
             height=self.y - other.y
         )
+
+
+class CapturePosition(BaseModel):
+    top_left: ScreenPoint
+    size: ScreenshotSize
 
 
 class ComboBoxWithLabel:
