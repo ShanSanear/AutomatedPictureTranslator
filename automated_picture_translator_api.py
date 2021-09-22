@@ -1,5 +1,6 @@
 from typing import Optional
 
+import uvicorn
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
@@ -47,3 +48,11 @@ async def translate_screen_part(position: CapturePosition):
 @app.get("/item/{item_id}")
 async def read_item(item_id: int, q: Optional[str] = None):
     return {"item_id": item_id, "q": q}
+
+
+def main():
+    uvicorn.run("automated_picture_translator_api:app", port=8000, reload=True, access_log=False)
+
+
+if __name__ == '__main__':
+    main()
