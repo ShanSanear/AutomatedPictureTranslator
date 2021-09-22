@@ -35,8 +35,8 @@ class AutomatedPictureTranslator(QWidget):
         self.translation.setReadOnly(True)
         self.set_top_left = QPushButton("TOP LEFT")
         self.set_bottom_right = QPushButton("BOTTOM RIGHT")
-        self.top_left = ScreenPoint(501, 1012)
-        self.bottom_right = ScreenPoint(1656, 1265)
+        self.top_left = ScreenPoint(x=501, y=1012)
+        self.bottom_right = ScreenPoint(x=1656, y=1265)
         self.set_top_left.clicked.connect(partial(self.get_mouse_position, 'top_left'))
         self.set_bottom_right.clicked.connect(partial(self.get_mouse_position, 'bottom_right'))
         self.current_screenshot = QPixmap()
@@ -87,7 +87,8 @@ class AutomatedPictureTranslator(QWidget):
     def do_translation(self):
         if self.top_left == (0, 0) or self.bottom_right == (0, 0):
             return
-        pic = self.picture_processing.capture_picture(self.bottom_right, self.top_left)
+        size = self.bottom_right - self.top_left
+        pic = self.picture_processing.capture_picture(self.top_left, size)
         text_to_translate = self.picture_processing.process_picture_white_to_black(pic)
         if not text_to_translate:
             text_to_translate = self.picture_processing.process_picture_ocr(pic)
