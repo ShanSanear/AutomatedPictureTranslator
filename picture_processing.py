@@ -4,7 +4,7 @@ import pyautogui
 import pytesseract
 from PIL import Image
 
-from utils import Communicate
+from utils import Communicate, ScreenPoint, ScreenshotSize
 
 # TODO to be removed after adding Tesseract to PATH
 
@@ -19,6 +19,10 @@ class PictureProcessing:
     def __init__(self):
         self.communicate = Communicate()
         self.communicate.update_tesseract_psm.connect(self._set_page_segmentation_mode)
+
+    @classmethod
+    def set_language(cls, language):
+        cls._from_language = language
 
     def _set_page_segmentation_mode(self, val):
         print(f"Set page segmentation mode: {val}")
@@ -40,8 +44,7 @@ class PictureProcessing:
         return cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
 
     @classmethod
-    def capture_picture(cls, bottom_right, top_left):
-        size = bottom_right - top_left
+    def capture_picture(cls, top_left: ScreenPoint, size: ScreenshotSize):
         return pyautogui.screenshot(region=(*top_left, *size))
 
     @classmethod
